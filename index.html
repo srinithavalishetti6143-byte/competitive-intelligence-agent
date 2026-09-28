@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CompeteMind AI — Cumulative Competitive Intelligence Agent</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81',
+                        },
+                        darkbg: '#0f172a',
+                        darkcard: '#1e293b',
+                        darkborder: '#334155'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .timeline-line::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 20px;
+            width: 2px;
+            background: #334155;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans">
+
+    <!-- Top Navigation Header -->
+    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-indigo-500/30">
+                    <i class="fa-solid fa-brain"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg text-white tracking-wide flex items-center gap-2">
+                        CompeteMind <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 font-semibold">AI Agent</span>
+                    </h1>
+                    <p class="text-xs text-slate-400">Cumulative Competitive Memory & Macro Strategy Synthesizer</p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-3">
+                <div id="kaggle-status-badge" class="hidden sm:flex items-center space-x-2 px-3 py-1.5 rounded-full bg-sky-950/60 border border-sky-800/50 text-sky-400 text-xs font-medium">
+                    <i class="fa-solid fa-database text-sky-400"></i>
+                    <span>Kaggle Dataset Engine: Active</span>
+                </div>
+                
+                <button onclick="runAIPatternSpotter()" class="bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-xs font-semibold px-4 py-2 rounded-lg transition shadow-md shadow-indigo-600/30 flex items-center gap-2">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>Run AI Pattern Spotter</span>
+                </button>
+                
+                <a href="/api/export/report" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-3 py-2 rounded-lg border border-slate-700 transition flex items-center gap-2">
+                    <i class="fa-solid fa-file-arrow-down"></i>
+                    <span>Export Briefing</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <!-- Top Metrics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="glass-panel p-5 rounded-2xl border border-slate-800">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Tracked Competitors</p>
+                        <h3 id="stat-competitors" class="text-3xl font-extrabold text-white mt-1">0</h3>
+                    </div>
+                    <div class="p-3 bg-indigo-500/10 rounded-xl text-indigo-400 border border-indigo-500/20">
+                        <i class="fa-solid fa-building-user text-xl"></i>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-400 mt-3 flex items-center gap-1">
+                    <span class="text-emerald-400 font-medium"><i class="fa-solid fa-check"></i> Active Roster</span>
+                </p>
+            </div>
+
+            <div class="glass-panel p-5 rounded-2xl border border-slate-800">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">6-Month Event Memory</p>
+                        <h3 id="stat-events" class="text-3xl font-extrabold text-emerald-400 mt-1">0</h3>
+                    </div>
+                    <div class="p-3 bg-emerald-500/10 rounded-xl text-emerald-400 border border-emerald-500/20">
+                        <i class="fa-solid fa-timeline text-xl"></i>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-400 mt-3 flex items-center gap-1">
+                    <span class="text-emerald-400 font-medium">Cumulative Historical Snapshot</span>
+                </p>
+            </div>
+
+            <div class="glass-panel p-5 rounded-2xl border border-slate-800">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Macro Patterns Discovered</p>
+                        <h3 id="stat-insights" class="text-3xl font-extrabold text-amber-400 mt-1">0</h3>
+                    </div>
+                    <div class="p-3 bg-amber-500/10 rounded-xl text-amber-400 border border-amber-500/20">
+                        <i class="fa-solid fa-lightbulb text-xl"></i>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-400 mt-3 flex items-center gap-1">
+                    <span class="text-amber-400 font-medium"><i class="fa-solid fa-triangle-exclamation"></i> Long-Term Shifts</span>
+                </p>
+            </div>
+
+            <div class="glass-panel p-5 rounded-2xl border border-slate-800">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Kaggle Data Feeds</p>
+                        <h3 id="stat-kaggle-feeds" class="text-3xl font-extrabold text-sky-400 mt-1">3 Active</h3>
+                    </div>
+                    <div class="p-3 bg-sky-500/10 rounded-xl text-sky-400 border border-sky-500/20">
+                        <i class="fa-solid fa-box-archive text-xl"></i>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-400 mt-3 flex items-center gap-1">
+                    <span class="text-sky-400 font-medium">Synced via Kaggle Pipeline</span>
+                </p>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="border-b border-slate-800 flex space-x-2 sm:space-x-4 overflow-x-auto pb-1 text-sm font-medium">
+            <button onclick="switchTab('dashboard')" id="tab-btn-dashboard" class="tab-btn px-4 py-2.5 rounded-xl text-indigo-400 bg-indigo-950/40 border border-indigo-800/50 flex items-center gap-2">
+                <i class="fa-solid fa-chart-line"></i> Dashboard & Macro Patterns
+            </button>
+            <button onclick="switchTab('timeline')" id="tab-btn-timeline" class="tab-btn px-4 py-2.5 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 flex items-center gap-2">
+                <i class="fa-solid fa-clock-rotate-left"></i> 6-Month Event Timeline
+            </button>
+            <button onclick="switchTab('competitors')" id="tab-btn-competitors" class="tab-btn px-4 py-2.5 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 flex items-center gap-2">
+                <i class="fa-solid fa-layer-group"></i> Competitor Roster & Matrix
+            </button>
+            <button onclick="switchTab('kaggle')" id="tab-btn-kaggle" class="tab-btn px-4 py-2.5 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 flex items-center gap-2">
+                <i class="fa-brands fa-kaggle text-sky-400"></i> Kaggle Datasets Hub
+            </button>
+            <button onclick="switchTab('scraper')" id="tab-btn-scraper" class="tab-btn px-4 py-2.5 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 flex items-center gap-2">
+                <i class="fa-solid fa-globe"></i> Live URL Monitor
+            </button>
+            <button onclick="switchTab('simulator')" id="tab-btn-simulator" class="tab-btn px-4 py-2.5 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 flex items-center gap-2">
+                <i class="fa-solid fa-bolt text-amber-400"></i> Simulator
+            </button>
+        </div>
+
+        <!-- TAB 1: DASHBOARD & MACRO PATTERNS -->
+        <div id="tab-content-dashboard" class="tab-content space-y-6">
+            
+            <!-- AI Macro Landscape Banner -->
+            <div class="glass-panel p-6 rounded-2xl border border-indigo-900/50 bg-gradient-to-r from-slate-900 via-indigo-950/30 to-slate-900 relative overflow-hidden">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
+                    <div class="space-y-2 max-w-3xl">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                            <i class="fa-solid fa-eye text-indigo-400"></i> Cumulative Memory Horizon: 180 Days (6 Months)
+                        </span>
+                        <h2 id="macro-headline" class="text-2xl font-bold text-white tracking-tight">
+                            Synthesizing Competitive Landscape...
+                        </h2>
+                        <p id="macro-summary" class="text-slate-300 text-sm leading-relaxed">
+                            CompeteMind is analyzing 6 months of historical moves across Pricing, Feature releases, Messaging shifts, and Hiring velocity.
+                        </p>
+                    </div>
+                    <div>
+                        <button onclick="runAIPatternSpotter()" class="whitespace-nowrap px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold shadow-lg shadow-indigo-600/30 flex items-center gap-2 transition">
+                            <i class="fa-solid fa-arrows-rotate"></i> Refresh AI Analysis
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts & Category Breakdown -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Category Breakdown Pie Chart -->
+                <div class="glass-panel p-5 rounded-2xl border border-slate-800">
+                    <h3 class="text-sm font-bold text-slate-200 uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-chart-pie text-indigo-400"></i> Moves by Category (180d)
+                    </h3>
+                    <div class="h-64 flex items-center justify-center">
+                        <canvas id="chart-category"></canvas>
+                    </div>
+                </div>
+
+                <!-- Competitor Move Activity Bar Chart -->
+                <div class="glass-panel p-5 rounded-2xl border border-slate-800 md:col-span-2">
+                    <h3 class="text-sm font-bold text-slate-200 uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-chart-bar text-emerald-400"></i> Competitor Activity Frequency
+                    </h3>
+                    <div class="h-64">
+                        <canvas id="chart-competitors"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Discovered Cumulative Patterns Grid -->
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-brain text-indigo-400"></i> Discovered Strategic Patterns & Counter-Playbooks
+                    </h3>
+                    <span class="text-xs text-slate-400">Cumulative analysis vs Weekly noise</span>
+                </div>
+
+                <div id="patterns-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Pattern Cards inserted dynamically via JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: 6-MONTH EVENT TIMELINE -->
+        <div id="tab-content-timeline" class="tab-content hidden space-y-6">
+            <!-- Filter Bar -->
+            <div class="glass-panel p-4 rounded-2xl border border-slate-800 flex flex-wrap items-center justify-between gap-4">
+                <!-- Time Horizon Selector -->
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider mr-2">Time Horizon:</span>
+                    <button onclick="filterTimelineDays(30)" id="tbtn-30" class="tday-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700">30 Days</button>
+                    <button onclick="filterTimelineDays(90)" id="tbtn-90" class="tday-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700">90 Days</button>
+                    <button onclick="filterTimelineDays(180)" id="tbtn-180" class="tday-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 text-white shadow-md">180 Days (6 Mo)</button>
+                    <button onclick="filterTimelineDays(365)" id="tbtn-365" class="tday-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700">365 Days (1 Yr)</button>
+                </div>
+
+                <!-- Category Filter Pills -->
+                <div class="flex items-center space-x-2 overflow-x-auto">
+                    <button onclick="filterTimelineCat('all')" id="tcat-all" class="tcat-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 text-white">All Moves</button>
+                    <button onclick="filterTimelineCat('Pricing')" id="tcat-Pricing" class="tcat-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-amber-400 hover:bg-slate-700"><i class="fa-solid fa-tags"></i> Pricing</button>
+                    <button onclick="filterTimelineCat('Feature')" id="tcat-Feature" class="tcat-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-emerald-400 hover:bg-slate-700"><i class="fa-solid fa-rocket"></i> Features</button>
+                    <button onclick="filterTimelineCat('Messaging')" id="tcat-Messaging" class="tcat-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-purple-400 hover:bg-slate-700"><i class="fa-solid fa-bullhorn"></i> Messaging</button>
+                    <button onclick="filterTimelineCat('Hiring')" id="tcat-Hiring" class="tcat-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-sky-400 hover:bg-slate-700"><i class="fa-solid fa-users"></i> Hiring</button>
+                </div>
+            </div>
+
+            <!-- Timeline Events List -->
+            <div class="glass-panel p-6 rounded-2xl border border-slate-800 relative">
+                <div id="timeline-events-container" class="space-y-6 relative timeline-line pl-8">
+                    <!-- Events rendered via JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: COMPETITOR ROSTER & MATRIX -->
+        <div id="tab-content-competitors" class="tab-content hidden space-y-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-xl font-bold text-white">Competitor Tracking Roster</h3>
+                    <p class="text-xs text-slate-400">Manage monitored companies and threat classification</p>
+                </div>
+                <button onclick="openAddCompetitorModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition flex items-center gap-2">
+                    <i class="fa-solid fa-plus"></i> Add Competitor
+                </button>
+            </div>
+
+            <!-- Competitor Cards -->
+            <div id="competitors-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Rendered dynamically -->
+            </div>
+
+            <!-- Strategic Comparison Matrix -->
+            <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+                <h4 class="text-lg font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-table-list text-indigo-400"></i> Competitor Strategy Comparison Matrix
+                </h4>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs text-slate-300">
+                        <thead class="bg-slate-800/80 text-slate-200 uppercase font-semibold border-b border-slate-700">
+                            <tr>
+                                <th class="p-3">Competitor</th>
+                                <th class="p-3">Threat Level</th>
+                                <th class="p-3">Primary Pricing Shift (180d)</th>
+                                <th class="p-3">Key Feature Launches</th>
+                                <th class="p-3">Hiring Velocity Focus</th>
+                                <th class="p-3">Positioning Tagline</th>
+                            </tr>
+                        </thead>
+                        <tbody id="matrix-tbody" class="divide-y divide-slate-800">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: KAGGLE DATASETS HUB -->
+        <div id="tab-content-kaggle" class="tab-content hidden space-y-6">
+            <div class="glass-panel p-6 rounded-2xl border border-sky-900/40 bg-gradient-to-r from-slate-900 via-sky-950/20 to-slate-900">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div>
+                        <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                            <i class="fa-brands fa-kaggle text-sky-400 text-2xl"></i> Kaggle Dataset Integration Hub
+                        </h3>
+                        <p class="text-xs text-slate-300 mt-1 max-w-2xl">
+                            Feed 6+ months of historical competitive intelligence datasets directly from Kaggle into CompeteMind's cumulative memory database.
+                        </p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <input id="kaggle-search-input" type="text" placeholder="Search Kaggle datasets..." class="bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 text-xs text-slate-200 focus:outline-none focus:border-sky-500 w-64">
+                        <button onclick="searchKaggleDatasets()" class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition">Search</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Datasets List -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="kaggle-datasets-container">
+                <!-- Curated Kaggle Datasets loaded here -->
+            </div>
+        </div>
+
+        <!-- TAB 5: LIVE URL MONITOR -->
+        <div id="tab-content-scraper" class="tab-content hidden space-y-6">
+            <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-spider text-indigo-400"></i> Live Competitor Website Scraper & Differential Engine
+                </h3>
+                <p class="text-xs text-slate-400">
+                    Triggers HTTP scraping across competitor Homepage, Pricing page, and Career portal. Compares fresh page hashes against baseline snapshots to detect price shifts and tagline changes.
+                </p>
+
+                <div class="flex flex-wrap items-center gap-4 pt-2">
+                    <select id="scrape-competitor-select" class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none">
+                        <!-- Competitor options populated dynamically -->
+                    </select>
+                    <button onclick="triggerScrape()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-5 py-2.5 rounded-xl transition flex items-center gap-2">
+                        <i class="fa-solid fa-play"></i> Run Differential Scan
+                    </button>
+                </div>
+
+                <div id="scrape-results-box" class="hidden mt-4 p-4 rounded-xl bg-slate-900 border border-slate-800 text-xs font-mono text-slate-300 whitespace-pre-wrap">
+                    <!-- Scrape output log -->
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 6: SIMULATOR -->
+        <div id="tab-content-simulator" class="tab-content hidden space-y-6">
+            <div class="glass-panel p-6 rounded-2xl border border-amber-900/40 bg-gradient-to-r from-slate-900 via-amber-950/20 to-slate-900 space-y-4">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-bolt text-amber-400"></i> Instant Competitor Move Simulator
+                </h3>
+                <p class="text-xs text-slate-300">
+                    Simulate a competitor move (e.g. price increase, new AI feature, executive hire) to test how CompeteMind's 6-month memory pattern spotter automatically updates its strategic analysis.
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                    <div>
+                        <label class="text-xs text-slate-400 block mb-1">Target Competitor</label>
+                        <select id="sim-competitor-select" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-xs text-slate-200"></select>
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400 block mb-1">Category</label>
+                        <select id="sim-category-select" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-xs text-slate-200">
+                            <option value="Pricing">Pricing Change</option>
+                            <option value="Feature">Feature Launch</option>
+                            <option value="Messaging">Messaging Shift</option>
+                            <option value="Hiring">Hiring Pattern</option>
+                        </select>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="text-xs text-slate-400 block mb-1">Event Title</label>
+                        <input id="sim-title-input" type="text" value="Notion introduces enterprise AI add-on fee" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-xs text-slate-200">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="text-xs text-slate-400 block mb-1">Description</label>
+                        <textarea id="sim-desc-input" rows="2" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-xs text-slate-200">Added compulsory $10/user/mo charge for AI workspace search on all annual contracts.</textarea>
+                    </div>
+                </div>
+
+                <button onclick="triggerSimulation()" class="bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold px-6 py-2.5 rounded-xl transition flex items-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i> Inject Move into Memory & Re-analyze Patterns
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal: Add Competitor -->
+    <div id="modal-add-competitor" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel max-w-lg w-full p-6 rounded-2xl border border-slate-700 space-y-4">
+            <div class="flex justify-between items-center">
+                <h3 class="text-lg font-bold text-white">Add New Competitor</h3>
+                <button onclick="closeAddCompetitorModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block text-slate-400 mb-1">Competitor Name *</label>
+                    <input id="new-comp-name" type="text" placeholder="e.g. Asana" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-200">
+                </div>
+                <div>
+                    <label class="block text-slate-400 mb-1">Domain</label>
+                    <input id="new-comp-domain" type="text" placeholder="e.g. asana.com" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-200">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-slate-400 mb-1">Threat Level</label>
+                        <select id="new-comp-threat" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-200">
+                            <option value="Critical">Critical</option>
+                            <option value="High" selected>High</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Low">Low</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-slate-400 mb-1">Tier</label>
+                        <select id="new-comp-tier" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-200">
+                            <option value="Direct">Direct</option>
+                            <option value="Indirect">Indirect</option>
+                            <option value="Emerging">Emerging</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-slate-400 mb-1">Website URL</label>
+                    <input id="new-comp-url" type="text" placeholder="https://asana.com" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-200">
+                </div>
+                <div>
+                    <label class="block text-slate-400 mb-1">Pricing Page URL</label>
+                    <input id="new-comp-pricing" type="text" placeholder="https://asana.com/pricing" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-200">
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-2 pt-2">
+                <button onclick="closeAddCompetitorModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold">Cancel</button>
+                <button onclick="saveNewCompetitor()" class="px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-semibold">Save Competitor</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Frontend Application Logic JS -->
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
